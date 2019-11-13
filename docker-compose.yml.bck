@@ -1,21 +1,14 @@
 version: '3'
 services:
-
   manager_web:
     restart: always
-    image: nginx:alpine
+    image: serialize/lemur-web
     ports:
       - "80:80"
       - "443:443"
-    depends_on:
-      - manager_api
     links:
       - manager_api:api
     volumes:
-      - ${PWD}/manager-web/sites-enabled:/etc/nginx/sites-enabled
-      - ${PWD}/manager-web/nginx.conf:/etc/nginx/nginx.conf
-      - ${PWD}/certs/server.pem:/etc/nginx/ssl/server.crt
-      - ${PWD}/certs/server-key.pem:/etc/nginx/ssl/server.key
       - manager_static:/opt/lemur/lemur/static/dist
 
   manager_api:
@@ -23,8 +16,6 @@ services:
     image: serialize/lemur
     expose:
       - "8000"
-    depends_on:
-      - manager_db
     links:
       - manager_db:db
       - issuer_api:ca
@@ -35,7 +26,7 @@ services:
 
   manager_db:
     restart: always
-    image: serialize/postgres
+    image: postgres:alpine
     expose:
       - "5432"
     environment:
@@ -46,18 +37,15 @@ services:
   issuer_api:
     restart: always
     image: serialize/cfssl
-    ports:
-      - "8888:8888"
+    expose:
+      - "8888"
     links:
       - issuer_db:db
+    environment:
+      DB_PASSWORD: 'cfssl'
     volumes:
       - issuer_api_etc:/etc/cfssl/
-      - ${PWD}/config.json:/etc/cfssl/config.json
-      - ${PWD}/db-config.json:/etc/cfssl/db-config.json
-      - ${PWD}/certs/ca-int.pem:/etc/cfssl/ca.pem
-      - ${PWD}/certs/ca-int-key.pem:/etc/cfssl/ca-key.pem
-    command: serve -address=0.0.0.0 -port=8888 -config=/etc/cfssl/config.json -db-config=/etc/cfssl/db-config.json -ca=/etc/cfssl/ca.pem -ca-key=/etc/cfssl/ca-key.pem
-      
+      - ${PWD}/issuer-api/db-config.json:/etc/cfssl/db-config.json
 
   issuer_db:
     restart: always

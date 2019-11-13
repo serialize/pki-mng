@@ -1,0 +1,14 @@
+{
+    "CN": "%%%CN%%%",
+    "key": {
+        "algo": "rsa",
+        "size": 4096
+    },
+    "names": [{
+        "C": "%%%COUNTRY%%%",
+        "ST": "%%%STATE%%%",
+        "L": "%%%LOCATION%%%",
+        "O": "%%%ORG%%%",
+        "OU": "%%%ORGUNIT%%%"
+    }]
+}
