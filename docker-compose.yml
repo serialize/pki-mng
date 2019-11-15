@@ -1,65 +1,30 @@
 version: '3'
 services:
-  manager_web:
-    restart: always
-    image: serialize/lemur-web
-    ports:
-      - "80:80"
-      - "443:443"
-    links:
-      - manager_api:api
-    volumes:
-      - manager_static:/opt/lemur/lemur/static/dist
 
-  manager_api:
-    restart: always
-    image: serialize/lemur
-    expose:
-      - "8000"
-    links:
-      - manager_db:db
-      - issuer_api:ca
-    volumes:
-      - manager_static:/opt/lemur/lemur/static/dist
-      - manager_api_etc:/etc/lemur
-      - ${PWD}/manager-api/lemur.conf.py:/etc/lemur/lemur.conf.py
-
-  manager_db:
-    restart: always
-    image: postgres:alpine
-    expose:
-      - "5432"
-    environment:
-      POSTGRES_PASSWORD: 'lemur'
-    volumes:
-      - manager_db_data:/var/lib/postgresql/data
-
-  issuer_api:
+  cfssl_api:
     restart: always
     image: serialize/cfssl
     expose:
       - "8888"
     links:
-      - issuer_db:db
+      - cfssl_db:$CFSSL_DB_HOSTNAME
     environment:
-      DB_PASSWORD: 'cfssl'
+      CFSSL_DB_PASSWORD: $CFSSL_DB_PASSWORD
+      CFSSL_DB_HOSTNAME: $CFSSL_DB_HOSTNAME
     volumes:
-      - issuer_api_etc:/etc/cfssl/
-      - ${PWD}/issuer-api/db-config.json:/etc/cfssl/db-config.json
+      - cfssl_api_etc:/etc/cfssl/
 
-  issuer_db:
+
+  cfssl_db:
     restart: always
-    image: serialize/cfssl-db
+    image: serialize/postgres
     expose:
       - "5432"
     environment:
-      POSTGRES_PASSWORD: 'cfssl'
+      POSTGRES_PASSWORD: $CFSSL_DB_PASSWORD
     volumes:
-      - issuer_db_data:/var/lib/postgresql/data
+      - cfssl_db_data:/var/lib/postgresql/data
 
 volumes:
-  manager_static: {}
-  manager_api_etc: {}
-  manager_db_data: {}  
-  issuer_api_etc: {}  
-  issuer_db_data: {}  
+  cfssl_api_etc: {}
+  cfssl_db_data: {}  

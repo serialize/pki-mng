@@ -1,0 +1,65 @@
+version: '3'
+services:
+  manager_web:
+    restart: always
+    image: serialize/lemur-web
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - manager_api:api
+    volumes:
+      - manager_static:/opt/lemur/lemur/static/dist
+
+  manager_api:
+    restart: always
+    image: serialize/lemur
+    expose:
+      - "8000"
+    links:
+      - manager_db:db
+      - issuer_api:ca
+    volumes:
+      - manager_static:/opt/lemur/lemur/static/dist
+      - manager_api_etc:/etc/lemur
+      - ${PWD}/manager-api/lemur.conf.py:/etc/lemur/lemur.conf.py
+
+  manager_db:
+    restart: always
+    image: postgres:alpine
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_PASSWORD: 'lemur'
+    volumes:
+      - manager_db_data:/var/lib/postgresql/data
+
+  issuer_api:
+    restart: always
+    image: serialize/cfssl
+    expose:
+      - "8888"
+    links:
+      - issuer_db:db
+    environment:
+      DB_PASSWORD: 'cfssl'
+    volumes:
+      - issuer_api_etc:/etc/cfssl/
+      - ${PWD}/issuer-api/db-config.json:/etc/cfssl/db-config.json
+
+  issuer_db:
+    restart: always
+    image: serialize/cfssl-db
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_PASSWORD: 'cfssl'
+    volumes:
+      - issuer_db_data:/var/lib/postgresql/data
+
+volumes:
+  manager_static: {}
+  manager_api_etc: {}
+  manager_db_data: {}  
+  issuer_api_etc: {}  
+  issuer_db_data: {}  
