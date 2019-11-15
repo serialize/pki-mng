@@ -13,6 +13,9 @@ services:
       CFSSL_DB_HOSTNAME: $CFSSL_DB_HOSTNAME
     volumes:
       - ${PWD}/cfssl-api/config.json:/etc/cfssl/config.json
+      - ${PWD}/cfssl-api/ca-bundle.crt:/etc/cfssl/ca-bundle.crt
+      - ${PWD}/cfssl-api/ca-int.pem:/etc/cfssl/ca.pem
+      - ${PWD}/cfssl-api/ca-int-key.pem:/etc/cfssl/ca-key.pem
       - cfssl_api_etc:/etc/cfssl/
 
 
