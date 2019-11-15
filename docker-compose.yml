@@ -3,7 +3,7 @@ services:
 
   cfssl_api:
     restart: always
-    image: serialize/cfssl
+    image: serialize/cfssl:serve
     expose:
       - "8888"
     links:
