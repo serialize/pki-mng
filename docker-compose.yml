@@ -12,6 +12,7 @@ services:
       CFSSL_DB_PASSWORD: $CFSSL_DB_PASSWORD
       CFSSL_DB_HOSTNAME: $CFSSL_DB_HOSTNAME
     volumes:
+      - ${PWD}/cfssl-api/config.json:/etc/cfssl/config.json
       - cfssl_api_etc:/etc/cfssl/
 
 
@@ -23,6 +24,7 @@ services:
     environment:
       POSTGRES_PASSWORD: $CFSSL_DB_PASSWORD
     volumes:
+      - ${PWD}/cfssl-db/create.sql:/docker-entrypoint-initdb.d/create.sql
       - cfssl_db_data:/var/lib/postgresql/data
 
 volumes:
